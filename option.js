@@ -1,23 +1,27 @@
-let blockList = [];
+let blockList = {};
 const select = document.querySelector('.select');
 document.addEventListener('DOMContentLoaded', function(){
     chrome.storage.sync.get('blockList', function(ret){
-        blockList = ret.blockList.split(',');
+        blockList = ret.blockList;
         updateList(blockList);
     });
 });
-const sites = document.querySelectorAll('option');
-const checkedSites = [];
+
 document.querySelector('.delete').addEventListener("click", function(){
-   sites.forEach(s => {
-       if(!s.checked) checkedSites.push(s);
-   });
-   chrome.storage.sync.set({'blockList': checkedSites.join(',')});
-   updateList(checkedSites);
+    const sites = document.querySelectorAll('.check');
+    sites.forEach(s => {
+       if(s.firstElementChild.checked) delete blockList[s.innerText];
+    });
+    console.log(blockList);
+    chrome.storage.sync.set({'blockList': blockList});
+    updateList(blockList);
 });
 
 function updateList(list){
     let listStr = '';
-    list.forEach((i, idx) => listStr += `<input type="checkbox">${i}</option>`);
+    for (const site in list) {
+        listStr += `<div class="check"><input type="checkbox"/>${site}</div>`;
+    }
     select.innerHTML = listStr;
 }
+
