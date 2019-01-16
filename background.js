@@ -11,6 +11,7 @@ let on = true;
 chrome.tabs.onUpdated.addListener(function(id, info, tab) {
   chrome.storage.sync.get('blockList', function(ret){
     blockList = ret.blockList;
+    console.log(blockList[extractUrl(tab.url)]);
     if(on && !blockList[extractUrl(tab.url)] && info.status==='loading'){
       chrome.tabs.insertCSS(null, {
         code: "img, iframe{visibility: hidden !important; a, div, span{background-image:none !important;}}",
@@ -30,15 +31,16 @@ chrome.runtime.onMessage.addListener(function(req, sender, sendResponse){
       const _url = extractUrl(req.url);
       if(blockList[_url]) break;
       blockList[_url] = _url;
-      chrome.storage.sync.set({'blockList': blockList})
+      chrome.storage.sync.set({'blockList': blockList});
+      chrome.tabs.reload();
       sendResponse({'add': true});
-      console.log(blockList);
       break;
     case 'remove':
       const url = extractUrl(req.url);
       delete blockList[url];
       chrome.storage.sync.set({'blockList': blockList});
       sendResponse({'remove': true});
+      chrome.tabs.reload();
       console.log(blockList);
       break;
     case 'tempBlock':
