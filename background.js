@@ -11,7 +11,6 @@ let on = true;
 chrome.tabs.onUpdated.addListener(function(id, info, tab) {
   chrome.storage.sync.get('blockList', function(ret){
     blockList = ret.blockList;
-    console.log(blockList[extractUrl(tab.url)]);
     if(on && !blockList[extractUrl(tab.url)] && info.status==='loading'){
       chrome.tabs.insertCSS(null, {
         code: "img, iframe{visibility: hidden !important; a, div, span{background-image:none !important;}}",
